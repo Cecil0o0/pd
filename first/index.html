@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>代码整洁分享</title>
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/reveal.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/theme/black.min.css" rel="stylesheet">
+
+  <!-- highlight css -->
+  <link rel="stylesheet" href="../common/highlight.js//atom-one-dark.css">
+
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <section>JavaScript的核心特性？</section>
+        <section>函数式编程(Functional Programming)</section>
+      </section>
+      <section data-transition="zoom">
+        <section>JSX中事件句柄传业务参数</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            handleClick = (e, param1, param2) => {
+              console.log(...argument)
+            }
+
+            &lt;div
+              onClick={e => this.handleClick(e, 'param1', 'param2')}
+            &gt;点击&lt;/div&gt;
+          </code></pre>
+        </section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+              handleClick = (param1, param2, e) => {
+                console.log(...argument)
+              }
+
+              &lt;div
+                onClick={this.handleClick.bind(this, 'param1', 'param2')}
+              &gt;点击&lt;/div&gt;
+            </code></pre>
+        </section>
+      </section>
+      <section>
+        <section>构造函数应用</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            function Person({ name }) {
+              this.name = name
+            }
+
+            Person.prototype.callName = function() { console.log(this.name) }
+
+            const person = new Person({ name: 'test' })
+            person.callName()
+          </pre></code>
+        </section>
+        <section>ES6语法糖</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            class Person{
+              constructor({ name }) {
+                this.name = name
+              }
+              callName () {
+                console.log(this.name)
+              }
+            }
+
+            const person = new Person({ name: 'test' })
+            person.callName()
+          </pre></code>
+        </section>
+      </section>
+      <section data-transition="slide-in slide-out">
+        <section>函数巧用</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // antd中uploader通用参数生成器
+            export const uploadParamsGen = function uploadParamsGen() {
+              return {
+                name: 'file',
+                action: uploadUrl,
+                data: {
+                  path: uploadBucket,
+                  isTinypng: false
+                }
+              }
+            }
+          </code></pre>
+        </section>
+        <section>高阶函数用法1</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // antd通用上传onChange高阶函数
+            export const uploadStatusChangeGen = function uploadStatusChangeGen(userHandler) {
+              return function onUploadChange(info) {
+                if (info.file.status === 'error') {
+                  message.error(`${info.file.name}。文件上传失败`)
+                }
+                userHandler(info)
+              }
+            }
+          </code></pre>
+        </section>
+        <section>高阶函数用法2</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // (任何组件库)通用上传beforeUpload高阶函数
+            export const beforeUploadGen = function beforeUploadGen({
+              mimeTypes = ['image/jpeg', 'image/png', 'image/gif'],
+              maxSize = 0.5,
+              onEnd = () => {}
+            } = {}) {
+              return function onBeforeUpload(file) {
+                let isType = true
+                if (mimeTypes) {
+                  // 处理上传文件文件类型逻辑
+                }
+
+                let limitSize = true
+                if (maxSize) {
+                  // 处理上传文件大小逻辑
+                }
+                onEnd({
+                  typeError: !isType,
+                  sizeError: !limitSize
+                })
+                return isType && limitSize
+              }
+            }
+          </code></pre>
+        </section>
+        <section>如何使用</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            &lt;Upload
+              {...{
+                ...uploadParamsGen(),
+                beforeUpload: beforeUploadGen(),
+                onChange: uploadStatusChangeGen(info => {
+                  if (info.file.status === 'done') {
+                    // 处理正常业务逻辑
+                  }
+                })
+              }}
+            &gt;{uploadButton}&lt;/Upload&gt;
+          </pre></code>
+        </section>
+      </section>
+      <section>
+        <section>函数柯里化应用1</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            const isType = type => value => typeof value === type
+
+            export const isString = isType('string')
+            export const isNumber = isType('number')
+            export const isBool = isType('boolean')
+          </code></pre>
+        </section>
+        <section>函数柯里化应用2</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // 计数器应用
+            function genCounter(start) {
+              let count = 0
+              return action => {
+                if (['plus', 'minus'].indexOf(action) === -1) {
+                  throw new Error('仅支持plus or minus')
+                }
+                return () => action === 'plus' ? ++count : --count
+              }
+            }
+
+            const counter = genCounter(10)
+
+            const plusHandler = counter('plus')
+            const minusHandler = counter('minus')
+          </code></pre>
+        </section>
+        <section>函数柯里化应用3</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // 摘自vue
+            const bailRE = /[^\w.$]/
+            const parsePath = function parsePath(path) {
+              if (bailRE.test(path)) return
+              const segments = path.split('.')
+              return function(obj) {
+                for (let i = 0; i < segments.length; i++) {
+                  if (!obj) return
+                  obj = obj[segments[i]]
+                }
+                return obj
+              }
+            }
+
+            // 如何使用
+            const parser = parsePath('data.0.x')
+            console.log(parser({
+              data: [
+                {
+                  x: 'value'
+                }
+              ]
+            }))
+          </code></pre>
+        </section>
+      </section>
+      <section>
+        <section>高阶函数封装（promise化）</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            /**
+            * Node中标准携带回调的方法（nodeStandardCallback）,比如require('fs').readFile
+            * @param {Function} func
+            */
+            const promisify = function promisify(func) {
+              return function() {
+                let args = Array.prototype.slice.call(arguments)
+                return new Promise((resolve, reject) => {
+                  try {
+                    func(...args, function(err, ...data) {
+                      if (err) return reject(err)
+                      resolve(data.length > 1 ? data : data[0])
+                    })
+                  } catch (e) {
+                    reject(e)
+                  }
+                })
+              }
+            }
+          </code></pre>
+        </section>
+        <section>如何使用</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            const readFile = promisify(require('fs').readFile)
+
+            readFile(__dirname + '/myfile.js', 'utf8')
+              .then(contents => console.log(contents))
+          </code></pre>
+        </section>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+            ### 有则查漏补缺，无则按需吸收
+          </script>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+            ### 欢迎私下沟通交流
+          </script>
+      </section>
+      <section>
+        谢谢！
+      </section>
+    </div>
+  </div>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/lib/js/head.min.js"></script>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/js/reveal.min.js"></script>
+  <script>
+    Reveal.initialize({
+      dependencies: [
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/markdown.min.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.5.0/plugin/highlight/highlight.min.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+      ],
+      slideNumber: true,
+      history: false
+    })
+  </script>
+</body>
+
+</html>
