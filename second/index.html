@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>JavaScript奇淫巧技</title>
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/reveal.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/theme/black.min.css" rel="stylesheet">
+
+  <!-- highlight css -->
+  <link rel="stylesheet" href="../common/highlight.js//atom-one-dark.css">
+
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <section>开发react插件常用操作</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            export function computedWrap() {
+              return function computed(ctor) {
+                const fun = function() {
+                  Object.keys(this.computed).map(key => {
+                    if (typeof this.computed[key] !== 'function') throw new Error(`${key} should be a function`);
+                    this.computed[key] = memory(this.computed[key]);
+                  });
+                };
+                ctor.prototype.componentDidMount = (didmount => {
+                  return function() { didmount.call(this); fun.call(this); };
+                })(ctor.prototype.componentDidMount);
+                return ctor;
+              };
+            };
+          </code></pre>
+        </section>
+      </section>
+      <section>
+        <section>Tad Form组件实现中关键Function</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            /**
+              * 给this.props.children传props的方法
+              * @param {Array Or Object} children 可以是数组或者React Element
+              * @param {Object} props 需要传给child的props
+              * @param {Function} validator 是否需要传props的校验器 需return true or false
+              */
+              recursiveSetPropsAndReturn({
+                children = this.props.children,
+                props = {},
+                validator = () => {
+                  return true
+                }
+              } = {}) {
+                if (!children) {
+                  throw new Error('invalid children')
+                }
+                // 子组件递归到父组件
+                const setPropsAndReturnChildren = function(children) {
+                  return React.Children.map(React.Children.toArray(children), ReactElement => {
+                    return React.isValidElement(ReactElement) ? setProps(ReactElement) : ReactElement
+                  })
+                }
+                const setProps = function(ReactElement) {
+                  return React.cloneElement(ReactElement, {
+                    ...(validator(ReactElement) ? props : {}),
+                    ...(ReactElement.props.children ? { children: setPropsAndReturnChildren(ReactElement.props.children) } : {})
+                  })
+                }
+                return setPropsAndReturnChildren(children)
+              }
+          </code></pre>
+        </section>
+        <section>如何使用</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            render () {
+              return (
+                &lt;div className="tad-form"&gt;
+                  {this.recursiveSetPropsAndReturn({
+                    props: {
+                      labelWidth: 100,
+                      setValue: () => {}
+                    }
+                  })}
+                &lt;/div&gt;
+              )
+            }
+          </code></pre>
+        </section>
+      </section>
+      <section>
+        <section>业务开发常用Tips</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // bad case
+            if (type === 1 || type === 2 || type === 3) {}
+
+            // good case
+            if ([1, 2, 3].indexOf(type) !== -1) {}
+
+            OR
+
+            if ([1, 2, 3].includes(type)) {}
+          </code></pre>
+        </section>
+      </section>
+      <section>
+        <section>抽象操作逻辑</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            // 抽象组件
+            class ActionAbstract extends Component {
+              state = {}
+              show = () => {
+                this.setState({
+                  modalVisible: true
+                })
+              }
+              render() {
+                const { content } = this.props
+                const TriggerIns = content({
+                  show: this.show
+                })
+                return &lt;React.Fragment&gt;
+                  {TriggerIn}
+                  &lt;Modal
+                    title={null}
+                    footer={null}
+                    centered
+                    visible={this.state.modalVisible}
+                    wrapClassName="previewH5Modal"
+                    destroyOnClose
+                  &gt;
+                    &lt;div&gt;处理通用弹窗逻辑，比如落地页关联广告等等&lt;/div&gt;
+                  &lt;/Modal&gt;
+                &lt;/React.Fragment&gt;
+              }
+            }
+          </code></pre>
+        </section>
+        <section>如何使用</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            import Preview from './ActionAbstract'
+
+            &lt;Preview content={({ show }) => {
+              &lt;div onClick={show}&gt;This is trigger&lt;/div&gt;
+            }}/&gt;
+          </code></pre>
+        </section>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+          ### 有则查漏补缺，无则按需吸收
+        </script>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+          ### 欢迎私下沟通交流
+        </script>
+      </section>
+      <section>
+        谢谢！
+      </section>
+    </div>
+  </div>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/lib/js/head.min.js"></script>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/js/reveal.min.js"></script>
+  <script>
+    Reveal.initialize({
+      dependencies: [
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/markdown.min.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.5.0/plugin/highlight/highlight.min.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+      ],
+      slideNumber: true,
+      history: false
+    })
+  </script>
+</body>
+
+</html>
