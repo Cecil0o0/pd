@@ -118,9 +118,9 @@
         <section>如何宏观求证Event Loop</section>
         <section>
           <pre><code data-trim class="hljs javascript">
-            setTimeout(() => {
-              while (true) {}
-            }, 0)
+            (function loop(){
+              Promise.resolve().then(loop);
+            })();
           </code></pre>
         </section>
         <section>
@@ -141,7 +141,7 @@
               })
               Promise.resolve().then(() => console.log('microtask'))
             }
-            setTimeout(() => console.log('timeout'), 4.7)
+            setTimeout(() => console.log('timeout'), 0)
           </code></pre>
         </section>
       </section>
