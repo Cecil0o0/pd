@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>深入JS异步</title>
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/reveal.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/theme/black.min.css" rel="stylesheet">
+
+  <!-- highlight css -->
+  <link rel="stylesheet" href="../common/highlight.js//atom-one-dark.css">
+
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <section>同步与异步</section>
+        <section>
+          <img src="https://user-gold-cdn.xitu.io/2018/1/26/161314dc9a9298f4?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="">
+        </section>
+      </section>
+      <section>
+        <section>异步与多线程</section>
+        <section>
+          异步：不阻塞等待函数调用结果的操作
+        </section>
+        <section>
+          多线程：线程间并发执行，线程内顺序执行
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            - 异步相较于多线程优势
+              - 减少共享变量
+              - 减少死锁的可能
+              - 多线程的滥用会提高系统上下文切换的成本，浪费CPU资源
+            - 劣势
+              - 异步模型较复杂
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            - 线程不是一种硬件功能，而且计算机的逻辑功能，线程本质上是一段并发运行的代码，因此需要CPU资源调度与运行
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            - 上下文又称为线程运行环境，用PCB（线程控制块）来表示，包括有进程状态、CPU寄存器的值等
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            - 切换操作可大致理解为保存当前运行环境，恢复将要运行的线程的运行环境两步
+          </script>
+        </section>
+      </section>
+      <section>
+        <section>浏览器Event Loop机制</section>
+        <section>A Thread in JavaScript Runtime Which coordinates events, user interaction, scripts, rendering, networking, and so forth</section>
+        <section>
+          <img src="http://www.ruanyifeng.com/blogimg/asset/2014/bg2014100802.png">
+        </section>
+        <section>常见的三条队列</section>
+        <section data-markdown>
+          <script type="text/template">
+            - task queue
+            - microtask queue
+            - animation callbacks queue
+          </script>
+        </section>
+        <section>Event loop processing model</section>
+        <section data-markdown>
+          <script type="text/template">
+            1. 检查task queue是否存在任务，如存在将变量oldestTask设为task queue队首的任务，否则直接跳过microtask检查点
+            2. 将event loop begin标志位设为当前高分辨率时间[HRT](https://w3c.github.io/hr-time/)
+            3. 将currently running task设为oldestTask
+            4. 执行oldestTask
+            5. 将currently running task设回null
+            6. 将oldestTask从task queue移除
+
+            > 未完...
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            > 继续...
+
+            7. 执行microtask checkpoint
+            8. 将now设为[HRT](https://w3c.github.io/hr-time/)
+            9. 记录task耗时
+            10. 尝试通知UI渲染线程render（animation callbacks在此阶段中执行）
+            11. 记录第10步耗时
+            11. 如果存在web workers event loop则执行。（每个event loop都对应一个[browsing context](https://html.spec.whatwg.org/multipage/browsers.html#browsing-context)）
+            12. 将event loop end标志为设为[HRT](https://w3c.github.io/hr-time/)
+          </script>
+        </section>
+        <section>microtask checkpoint</section>
+        <section data-markdown>
+          <script type="text/template">
+            1. 将performing a microtask checkpoint设置为true（防止reentrancy）
+            2. 当微任务队列中存在任务时，不断执行类似前述步骤3-6直到microtask queue清空
+            3. [清空Indexed Database事务](https://w3c.github.io/IndexedDB/#cleanup-indexed-database-transactions)
+            4. 将performing a microtask checkpoint设置为false
+          </script>
+        </section>
+      </section>
+      <section>
+        <section>如何宏观求证渲染的时机是异步的</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            document.body.appendChild(el)
+            el.style.display = 'none'
+          </code></pre>
+        </section>
+        <section>如何宏观求证Event Loop</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            setTimeout(() => {
+              while (true) {}
+            }, 0)
+          </code></pre>
+        </section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            (function loop() {
+              console.log(1)
+              setTimeout(arguments.callee, 0)
+            })()
+          </code></pre>
+        </section>
+        <section>macrotask、microtask和animation callbacks队列</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            for(let i = 0; i < 10; i++) {
+              requestAnimationFrame(() => {
+                console.log('raf')
+                requestAnimationFrame(() => console.log('raf2'))
+              })
+              Promise.resolve().then(() => console.log('microtask'))
+            }
+            setTimeout(() => console.log('timeout'), 4.7)
+          </code></pre>
+        </section>
+      </section>
+      <section>
+        <section>Babel如何转码async语法糖</section>
+        <section>
+          祥见文件
+        </section>
+        <section data-markdown>
+          <script type="text/html">
+            - 小结：
+            - 将async语法通过GeneratorFunction构造出Generator对象，将await语法转换成yield，再通过step步进器自执行Generator(即iterator)，形成一条promise链，最后包装成promise返回。
+          </script>
+        </section>
+      </section>
+      <section>
+        <section>async写法优化</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            async function parallel() {
+              await promisifiedAjax1()
+              await promisifiedAjax2()
+              return 'ajax done'
+            }
+          </code></pre>
+        </section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            async function parallel() {
+              let wait1 = promisifiedAjax1()
+              let wait2 = promisifiedAjax2()
+              await wait1()
+              await wait2()
+              return 'ajax done'
+            }
+
+            async function parallel() {
+              await Promise.all([promisifiedAjax1(), promisifiedAjax2()])
+              return 'ajax done'
+            }
+          </code></pre>
+        </section>
+        <section>监听页面中所有img标签全部加载完成的异步方法</section>
+        <section>
+          <pre><code data-trim class="hljs javascript">
+            function isAllImgTagsLoad() {
+              return Promise.all([].map.call(
+                document.getElementsByTagName('img'),
+                img => new Promise(resolve => {
+                  if (img.complete) resolve(img.src)
+                  img.addEventListner('load', () => resolve(img.src))
+                  img.addEventListner('error', (e) => reject(e))
+                })
+              ))
+            }
+
+            isAllImgTagsLoad().then(srcArr => console.log(srcArr))
+          </code></pre>
+        </section>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+          ### 有则查漏补缺，无则按需吸收
+        </script>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+          ### 欢迎私下沟通交流
+        </script>
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+          ### 前端支撑组
+          ##### 陈豪杰
+        </script>
+      </section>
+      <section>
+        谢谢！
+      </section>
+    </div>
+  </div>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/lib/js/head.min.js"></script>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/js/reveal.min.js"></script>
+  <script>
+    Reveal.initialize({
+      dependencies: [
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/markdown.min.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.5.0/plugin/highlight/highlight.min.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+      ],
+      slideNumber: true,
+      history: false
+    })
+  </script>
+</body>
+
+</html>

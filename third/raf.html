@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>RAF</title>
+  <style>
+    #box {
+      width: 100px;
+      height: 100px;
+      border: 1px solid #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="box">500px</div>
+  <button id="btn">移动</button>
+  <script>
+    const box = document.getElementById('box')
+    document.getElementById('btn').addEventListener('click', () => {
+      box.style.transform = 'translateX(1000px)'
+      box.style.transition = 'transform 1s ease-in-out'
+      box.innerText = '1000px'
+      // requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          box.innerText = '500px'
+          box.style.transform = 'translateX(500px)'
+        })
+      // })
+    })
+  </script>
+</body>
+</html>
