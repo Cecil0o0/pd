@@ -118,9 +118,9 @@
         <section>如何宏观求证Event Loop</section>
         <section>
           <pre><code data-trim class="hljs javascript">
-            (function loop(){
-              Promise.resolve().then(loop);
-            })();
+            setTimeout(() => {
+              while(true) {}
+            }, 0)
           </code></pre>
         </section>
         <section>
@@ -130,6 +130,12 @@
               setTimeout(arguments.callee, 0)
             })()
           </code></pre>
+        </section>
+        <section>如何宏观求证microtask queue的执行方式</section>
+        <section>
+          (function loop(){
+            Promise.resolve().then(loop);
+          })();
         </section>
         <section>macrotask、microtask和animation callbacks队列</section>
         <section>

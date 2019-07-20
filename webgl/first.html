@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>（第一章）WebGL之半深入浅出GPU必知基础知识</title>
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/reveal.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/theme/black.min.css" rel="stylesheet">
+
+  <!-- highlight css -->
+  <link rel="stylesheet" href="../common/highlight.js/atom-one-dark.css">
+  <link rel="stylesheet" href="../common/styles/global.css">
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        第一章
+        <p>
+          WebGL之半深入浅出GPU必知基础知识
+        </p>
+      </section>
+      <section>
+        <section>
+          Why Not <span class="g-red">CPU</span>?
+        </section>
+        <section>
+          CPU 由专为<span class="g-red">顺序串行</span>处理而优化的几个核心组成，而 GPU 则拥有一个由<span class="g-red">数以千计</span>的更小、更高效的核心（专为同时处理多重任务而设计）组成的大规模并行计算架构
+        </section>
+      </section>
+      <section>
+        <section>
+          <p>
+            通用GPU并行架构 - CUDA
+          </p>
+          <p class="fragment">
+            CREATED BY <span class="fragment highlight-red">NVIDIA</span>
+          </p>
+        </section>
+        <section>
+          <p class="g-al">
+            CUDA 既是一个并行计算平台，又是一种编程模型，可利用图形处理器 (GPU) 的能力，显著提高计算性能。
+          </p>
+        </section>
+        <section>
+          <img data-src="https://img-blog.csdn.net/20160120171529598">
+        </section>
+        <section>
+          <p class="g-al">
+            简单来说GPU提供了<span class="g-red">大规模并行计算机制</span>，特别适合于执行高度并行的渲染逻辑。
+          </p>
+          <p class="fragment g-al">
+            然而上述“并行”的数量级与在CPU上开启几或几十个甚至几百个线程天差地别，
+            GPU的线程数可达<span class="g-red">上百万</span>个或更多。
+            乍一看非常荒谬。
+          </p>
+          <p class="fragment g-al">
+            但不是意味着同时能执行那么多线程，取决于<span class="g-red">流多处理器或者说CUDA核心</span>数量。
+          </p>
+        </section>
+        <section>
+          <p class="fragment g-al">
+            例如GTX 580 理论上可<span class="g-red">并行</span>执行24,756个线程。
+          </p>
+          <p class="fragment g-al">
+            不同显卡理论上可并行执行的线程数量从硬件角度看取决于GPU架构，软件层面则是cuda程序逻辑
+          </p>
+        </section>
+      </section>
+      <section>
+        <section>
+          GPU渲染管线
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            1. Vertices
+            2. Vertex Shader
+            3. Geometry Shader (Primitive Assembly)
+            4. Rasterization & Interpolation
+            5. Fragment Shader
+            6. Raster Operations
+          </script>
+        </section>
+        <section>
+          <img src="render-pipelines.gif">
+        </section>
+      </section>
+      <section data-transition-speed="fast">
+        <section>
+          <p class="fragment reveal">了解GPU必知基础知识什么用？</p>
+        </section>
+        <section>
+          <p class="g-al">
+            对屏幕上的每一帧的渲染过程有进一步认知
+          </p>
+          <p class="fragment fade-up g-al">
+            遇到图形（如Canvas、SVG）渲染性能瓶颈不至于“摸瞎”
+          </p>
+          <p class="fragment fade-up g-al">
+            为即将入门的<span class="g-red">GPU编程</span>打基础
+          </p>
+          <p class="fragment fade-up g-al">
+            (路且长)为AI、大数据可视化、游戏开发、VR/AR铺路
+          </p>
+        </section>
+      </section>
+      <section>
+        进阶问题：GPU的性能瓶颈可能会是什么？或者说CUDA模型解决了什么问题？
+      </section>
+      <section data-markdown>
+        <script type="text/template">
+          ## Bytedance-SuiteAdmin-FE
+          # 陈豪杰
+        </script>
+      </section>
+      <section>
+        谢谢！
+      </section>
+      <section data-markdown>
+        <script type="text/html">
+          ### Refs
+          - [OpenGL管线](https://www.cnblogs.com/liangliangh/p/4116164.html)
+          - [NVIDIA中国](https://www.nvidia.cn/object/cuda-faq-cn.html)
+        </script>
+      </section>
+    </div>
+  </div>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/lib/js/head.min.js"></script>
+  <script src="https://cdn.bootcss.com/reveal.js/3.6.0/js/reveal.min.js"></script>
+  <script>
+    Reveal.initialize({
+      dependencies: [
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/markdown/markdown.min.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.5.0/plugin/highlight/highlight.min.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } },
+        { src: 'https://cdn.bootcss.com/reveal.js/3.6.0/plugin/zoom-js/zoom.js', async: true }
+      ],
+      slideNumber: true,
+      history: false
+    })
+  </script>
+</body>
+
+</html>
