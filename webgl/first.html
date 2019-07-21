@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>（第一章）WebGL之半深入浅出GPU必知基础知识</title>
+  <title>（序章）WebGL之半深入浅出GPU必知基础知识</title>
   <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/reveal.min.css" rel="stylesheet">
   <link href="https://cdn.bootcss.com/reveal.js/3.6.0/css/theme/black.min.css" rel="stylesheet">
 
@@ -18,17 +18,22 @@
   <div class="reveal">
     <div class="slides">
       <section>
-        第一章
+        序章
         <p>
           WebGL之半深入浅出GPU必知基础知识
         </p>
       </section>
       <section>
         <section>
-          Why Not <span class="g-red">CPU</span>?
+          Why Not <span class="g-red">Only</span> CPU?
         </section>
-        <section>
-          CPU 由专为<span class="g-red">顺序串行</span>处理而优化的几个核心组成，而 GPU 则拥有一个由<span class="g-red">数以千计</span>的更小、更高效的核心（专为同时处理多重任务而设计）组成的大规模并行计算架构
+        <section class="g-al">
+          CPU 由专为<span class="g-red">顺序串行</span>处理而优化的几个核心组成，
+          而 GPU 则拥有一个由数以千计的更小、更高效的核心（专为同时处理多重任务而设计）组成的<span class="g-red">大规模</span>并行计算架构
+        </section>
+        <section class="g-al">
+          GPU是能够并行执行大量线程的计算设备。
+          它作为主CPU的<span class="g-red">协处理器</span>运行，在主机上运行的应用程序的数据并行以及计算密集型部分off-load到该设备上从而减轻主CPU负担
         </section>
       </section>
       <section>
@@ -46,7 +51,22 @@
           </p>
         </section>
         <section>
-          <img data-src="https://img-blog.csdn.net/20160120171529598">
+          <p class="g-al">
+            CUDA基于PTX实现
+          </p>
+          <p class="g-al">
+            PTX是一种应用于NVIDIA CUDA编程环境的一种伪汇编语言。它为通用并行编程提供了稳定的<span class="g-red">编程模型</span>和<span class="g-red">指令集</span>。
+            高级语言编译器比如CUDA、C/C++生成PTX指令集，该指令集是被优化并且转换成原生目标架构指令集。从而<span class="g-red">高效</span>支持NVIDIA GPU的计算能力。
+          </p>
+        </section>
+        <section>
+          <img data-src="thread-batching.jpg">
+        </section>
+        <section>
+          <img data-src="memory-hierarchy.jpg">
+        </section>
+        <section>
+          <img data-src="hardware-model.png">
         </section>
         <section>
           <p class="g-al">
@@ -103,7 +123,7 @@
             为即将入门的<span class="g-red">GPU编程</span>打基础
           </p>
           <p class="fragment fade-up g-al">
-            (路且长)为AI、大数据可视化、游戏开发、VR/AR铺路
+            (路且长)为AI、BI、ML、大数据可视化、游戏开发、VR/AR铺路
           </p>
         </section>
       </section>
@@ -124,6 +144,7 @@
           ### Refs
           - [OpenGL管线](https://www.cnblogs.com/liangliangh/p/4116164.html)
           - [NVIDIA中国](https://www.nvidia.cn/object/cuda-faq-cn.html)
+          = [CUDA底层实现之PTX](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#memory-hierarchy__memory-hierarchy-fig)
         </script>
       </section>
     </div>
