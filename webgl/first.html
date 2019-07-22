@@ -78,7 +78,7 @@
             乍一看非常荒谬。
           </p>
           <p class="fragment g-al">
-            但不是意味着同时能执行那么多线程，取决于<span class="g-red">流多处理器或者说CUDA核心</span>数量。
+            但不是意味着同时能执行那么多线程，取决于<span class="g-red">多处理器或者说CUDA核心</span>数量。
           </p>
         </section>
         <section>
@@ -146,6 +146,19 @@
           - [NVIDIA中国](https://www.nvidia.cn/object/cuda-faq-cn.html)
           = [CUDA底层实现之PTX](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#memory-hierarchy__memory-hierarchy-fig)
         </script>
+      </section>
+      <section>
+        <p class="g-al">
+          Warp：并行线程组
+          Thread: 线程
+          CTA: Cooperative Thread Arrays。包含可并发或并行执行内核的线程的数组
+          Grid: 网格
+          PTX: Parallel Thread Execution
+          Instruction: 指令
+          ISA: Instruction Set Architecture
+          Stream MultiProcessor: 流式多处理器
+          SIMT: Single-Instruction Multi-Thread
+        </p>
       </section>
     </div>
   </div>
